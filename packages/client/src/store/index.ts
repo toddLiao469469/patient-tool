@@ -3,6 +3,7 @@ import createSagaMiddleware from 'redux-saga';
 
 import rootSaga from '../saga';
 import rootReducer from '../reducers';
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -13,7 +14,7 @@ export const store = configureStore({
 
 sagaMiddleware.run(rootSaga);
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;
-// Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
+export const useAppDispatch: () => AppDispatch = useDispatch;
 export type AppDispatch = typeof store.dispatch;
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;

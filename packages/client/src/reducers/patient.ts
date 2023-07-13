@@ -1,30 +1,44 @@
 // app/userReducer.ts
 
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { Patient } from '../lib/types';
 
 interface PatientState {
-  name: string;
-  orderId: string;
+  data: Patient[] | null;
+  error: string | null;
+  fetching: boolean;
 }
 
 const initialState: PatientState = {
-  name: '',
-  orderId: '',
+  data: null,
+  error: null,
+  fetching: false,
 };
-
-export interface SetNamePayload {
-  name: string;
+export interface ChangeOrderPayload {
+  id: string;
+  orderId: string;
 }
+export type SetPatientsPayload = Patient[];
 
 const patientSlice = createSlice({
   name: 'patient',
   initialState,
   reducers: {
-    setName: (state, action: PayloadAction<SetNamePayload>) => {
-      state.name = action.payload.name;
+    fetchPatientsFetching: (state) => {
+      state.fetching = true;
+    },
+    fetchPatientsSuccess: (state, action: PayloadAction<Patient[]>) => {
+      state.data = action.payload;
+      state.error = null;
+      state.fetching = false;
+    },
+    fetchPatientsFail: (state, action: PayloadAction<string>) => {
+      state.error = action.payload;
+      state.fetching = false;
     },
   },
 });
 
-export const { setName } = patientSlice.actions;
+export const { fetchPatientsFetching, fetchPatientsSuccess, fetchPatientsFail } =
+  patientSlice.actions;
 export const patientReducer = patientSlice.reducer;
