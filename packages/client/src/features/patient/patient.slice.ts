@@ -1,7 +1,7 @@
 // app/userReducer.ts
 
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { Patient } from '../lib/types';
+import { Patient } from '../../lib/types';
 
 interface PatientState {
   data: Patient[] | null;

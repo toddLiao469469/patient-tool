@@ -1,4 +1,4 @@
-import { Order } from '../lib/types';
+import { Order } from '../../lib/types';
 
 // mock data
 export const getOrders = (): Promise<Order[]> => {

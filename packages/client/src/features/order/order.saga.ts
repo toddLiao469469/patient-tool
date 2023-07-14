@@ -1,16 +1,9 @@
 import { takeLatest, put, call } from 'redux-saga/effects';
 
-import { Order } from '../lib/types';
-import { fetchOrdersFail, fetchOrdersFetching, fetchOrdersSuccess } from '../reducers/order';
-import { getOrders } from '../api/order';
-
-export enum OrderSagaAction {
-  FETCH_ORDERS = 'order/fetch-orders',
-}
-
-export const fetchOrdersActionCreator = () => {
-  return { type: OrderSagaAction.FETCH_ORDERS };
-};
+import { Order } from '../../lib/types';
+import { fetchOrdersFail, fetchOrdersFetching, fetchOrdersSuccess } from './order.slice';
+import { getOrders } from './order.service';
+import { OrderSagaAction } from './order.action';
 
 function* fetchOrders(): Generator<unknown, void, Order[]> {
   try {

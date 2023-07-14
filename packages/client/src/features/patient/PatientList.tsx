@@ -2,10 +2,11 @@ import { useEffect } from 'react';
 
 import { CircularProgress, Stack } from '@mui/material';
 
-import { useAppSelector, useAppDispatch } from '../store';
-import { fetchPatientActionCreator } from '../saga/patient';
-import PatientCard from '../components/PatientCard';
-import { fetchOrdersActionCreator } from '../saga/order';
+import { useAppSelector, useAppDispatch } from '../../store';
+import { fetchPatientActionCreator } from './patient.action';
+import { fetchOrdersActionCreator } from '../order/order.action';
+
+import PatientCard from './PatientCard';
 
 const PatientList = () => {
   const dispatch = useAppDispatch();

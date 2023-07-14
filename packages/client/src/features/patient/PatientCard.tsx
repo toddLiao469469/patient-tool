@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 
 import { Button, Card, Typography } from '@mui/material';
 
-import { Patient } from '../lib/types';
-import { useAppDispatch, useAppSelector } from '../store';
-import { fetchOrdersActionCreator } from '../saga/order';
+import { Patient } from '../../lib/types';
+import { useAppDispatch, useAppSelector } from '../../store';
+import { fetchOrdersActionCreator } from '../order/order.action';
 
 type PatientCardProps = Patient;
 

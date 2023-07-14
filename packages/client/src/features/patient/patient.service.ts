@@ -1,4 +1,4 @@
-import { Patient } from '../lib/types';
+import { Patient } from '../../lib/types';
 
 // mock data
 export const getPatients = (): Promise<Patient[]> => {
