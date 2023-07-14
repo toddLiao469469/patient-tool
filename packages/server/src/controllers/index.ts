@@ -1,4 +1,3 @@
-// controllers/api-controllers.ts
 import { Request, Response, NextFunction } from "express";
 
 export class ApiControllers {

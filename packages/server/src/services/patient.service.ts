@@ -1,35 +1,17 @@
-import PatientRepo from "../repo/patient.repo";
-import { Service } from "typedi";
+import Container, { Service } from 'typedi';
 
-type PatientRepoType = typeof PatientRepo;
+import PatientModel, { Patient } from '../model/patient.model';
 
 @Service()
 class PatientService {
-  constructor(private PatientRepo: PatientRepoType) {}
+  constructor() {
+    this.patientModel = Container.get('PatientModel');
+  }
+  private patientModel: typeof PatientModel;
 
-  getAllPatients = (): Record<string, string> => {
-    // 資料庫操作，調用 PatientModel 的方法
-    return { message: "Hello World!" };
-  };
-
-  getPatientById = (id: string) => {
-    // 資料庫操作，調用 PatientModel 的方法
-    return { message: "Hello World!" };
-  };
-
-  createPatient = (patientData: any) => {
-    // 資料庫操作，調用 PatientModel 的方法
-    return { message: "Hello World!" };
-  };
-
-  updatePatient = (id: string, patientData: any) => {
-    // 資料庫操作，調用 PatientModel 的方法
-    return { message: "Hello World!" };
-  };
-
-  deletePatient = (id: string) => {
-    // 資料庫操作，調用 PatientModel 的方法
-    return { message: "Hello World!" };
+  getAllPatients = async (): Promise<Patient[]> => {
+    const result = await this.patientModel.find().lean();
+    return result;
   };
 }
 
