@@ -1,24 +1,33 @@
-import { JsonController, Get, Param } from "routing-controllers";
-import { Inject, Service } from "typedi";
+import { JsonController, Get, Param, Patch, Body, Post } from 'routing-controllers';
+import { Inject, Service } from 'typedi';
 
-import OrderService from "../services/order.service";
+import OrderService, { CreateOrderInput, UpdateOrderInput } from '../services/order.service';
 
 @JsonController()
 @Service()
 class OrderController {
   constructor(@Inject() private orderService: OrderService) {}
 
-  @Get("/orders")
+  @Get('/orders')
   getAllOrders() {
     return this.orderService.getAllOrders();
   }
 
-  @Get("/order/:id")
+  @Get('/order/:id')
   getOrder(@Param('id') id: string) {
-    console.log('id',id)
+    console.log('id', id);
     return this.orderService.getOrder(id);
   }
 
+  @Post('/order')
+  createOrder(@Body() body: CreateOrderInput) {
+    return this.orderService.createOrder(body);
+  }
+
+  @Patch('/order/:id')
+  updateOrder(@Param('id') id: string, @Body() body: UpdateOrderInput) {
+    return this.orderService.updateOrder(id, body);
+  }
 }
 
 export default OrderController;
