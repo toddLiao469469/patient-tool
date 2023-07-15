@@ -4,7 +4,6 @@ import { CircularProgress, Stack } from '@mui/material';
 
 import { useAppSelector, useAppDispatch } from '../../store';
 import { fetchPatientActionCreator } from './patient.action';
-import { fetchOrdersActionCreator } from '../order/order.action';
 
 import PatientCard from './PatientCard';
 
@@ -15,10 +14,6 @@ const PatientList = () => {
   const patientsError = useAppSelector((state) => state.patient.error);
   useEffect(() => {
     dispatch(fetchPatientActionCreator());
-  }, [dispatch]);
-
-  useEffect(() => {
-    dispatch(fetchOrdersActionCreator());
   }, [dispatch]);
 
   if (patientsFetching) {
