@@ -1,22 +1,30 @@
-import { takeLatest, put, call } from 'redux-saga/effects';
+import { takeLatest, put, call, all, takeEvery } from 'redux-saga/effects';
 
 import { Order } from '../../lib/types';
-import { fetchOrdersFail, fetchOrdersFetching, fetchOrdersSuccess } from './order.slice';
-import { getOrders } from './order.service';
-import { OrderSagaAction } from './order.action';
+import { ordersFail, ordersFetching, fetchOrderSuccess } from './order.slice';
+import { getOrder } from './order.service';
+import { OrderSagaAction, fetchOrderActionCreator } from './order.action';
 
-function* fetchOrders(): Generator<unknown, void, Order[]> {
+function* fetchOrder(
+  action: ReturnType<typeof fetchOrderActionCreator>,
+): Generator<unknown, void, Order> {
   try {
-    yield put(fetchOrdersFetching());
+    const { payload } = action;
+    yield put(ordersFetching());
 
-    const result = yield call(getOrders);
+    console.log('fetchOrder', payload);
+    const result = yield call(() => getOrder(payload));
     console.log('result', result);
-    yield put(fetchOrdersSuccess(result));
+    yield put(fetchOrderSuccess(result));
   } catch (error) {
-    yield put(fetchOrdersFail('Error'));
+    yield put(ordersFail('Error'));
   }
 }
 
+export function* watchFetchOrder() {
+  yield takeEvery(OrderSagaAction.FETCH_ORDER, fetchOrder);
+}
+
 export function* orderSaga() {
-  yield takeLatest(OrderSagaAction.FETCH_ORDERS, fetchOrders);
+  yield all([watchFetchOrder()]);
 }

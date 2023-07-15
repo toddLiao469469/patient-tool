@@ -1,6 +1,7 @@
 import { Container, styled } from '@mui/material';
 
-import PatientList from './components/PatientList';
+import PatientList from './features/patient/PatientList';
+import OrderDialog from './features/order/OrderDialog';
 
 const PageBase = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
@@ -20,6 +21,8 @@ function App() {
           height: '100%',
         }}
       >
+        <OrderDialog />
+
         <PatientList />
       </Container>
     </PageBase>
