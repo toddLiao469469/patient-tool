@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import { useContainer as routingUseContainer, useExpressServer } from 'routing-controllers';
 import { Container } from 'typedi';
 import PatientController from './controllers/patient.controller';
+import cors from 'cors';
 
 import PatientModel from './model/patient.model';
 import orderRepo from './model/order.model';
@@ -18,6 +19,8 @@ routingUseContainer(container);
 
 const app = express();
 
+app.use(cors());
+
 mongoose
   .connect('mongodb://localhost/mydatabase')
   .then(() => {
@@ -30,7 +33,7 @@ mongoose
   });
 // eslint-disable-next-line react-hooks/rules-of-hooks
 useExpressServer(app, {
-  controllers: [PatientController,OrderController],
+  controllers: [PatientController, OrderController],
 });
 
 app.listen(3000, () => {
@@ -41,8 +44,6 @@ async function initializeDefaultData() {
   const firstPatient = await PatientModel.findOne({ name: 'Patient 1' });
   const order = await orderRepo.findById(firstPatient?.orderId);
 
-  console.log(order);
-
   try {
     const existingOrders = await orderRepo.find();
     if (existingOrders.length > 0) {
@@ -51,35 +52,57 @@ async function initializeDefaultData() {
     }
 
     const defaultOrders = [
-      { message: '每日服用一顆藥丸，飯後30分鐘。' },
-      { message: '每天晚上休息充足，保持良好的睡眠品質。' },
-      { message: '發燒時，每隔4小時服用解熱藥，並多喝水休息。' },
+      { orderId: 'defaultId', message: '每日服用一顆藥丸，飯後30分鐘。' },
+      { orderId: 'defaultId', message: '每天晚上休息充足，保持良好的睡眠品質。' },
+      { orderId: 'defaultId', message: '發燒時，每隔4小時服用解熱藥，並多喝水休息。' },
     ];
+    const createdOrders = [];
+    for (const orderData of defaultOrders) {
+      const order = new OrderModel(orderData);
 
-    const createdOrders = await orderRepo.create(defaultOrders);
-    console.log('預設病患資料已建立', createdOrders);
-  } catch (error) {
-    console.error('初始化預設病患資料失敗', error);
-  }
-
-  try {
-    const existingPatients = await PatientModel.find();
-    if (existingPatients.length > 0) {
-      console.log('預設病患資料已存在');
-      return;
+      try {
+        const createdOrder = await order.save();
+        createdOrders.push(createdOrder);
+      } catch (error) {
+        throw new Error(`建立預設醫囑資料失敗: ${error}`);
+      }
     }
-    const defaultOrders = await orderRepo.find();
-    const defaultPatients = [
-      { name: 'Patient 1', orderId: defaultOrders[0]._id },
-      { name: 'Patient 2' },
-      { name: 'Patient 3', orderId: defaultOrders[1]._id },
-      { name: 'Patient 4', orderId: defaultOrders[2]._id },
-      { name: 'Patient 5' },
-    ];
 
-    const createdPatients = await PatientModel.create(defaultPatients);
-    console.log('預設病患資料已建立', createdPatients);
+    console.log('預設醫囑已建立', createdOrders);
   } catch (error) {
-    console.error('初始化預設病患資料失敗', error);
+    console.error('初始化預設醫囑資料失敗', error);
+  } finally {
+    try {
+      const existingPatients = await PatientModel.find();
+      if (existingPatients.length > 0) {
+        console.log('預設病患資料已存在');
+        return;
+      }
+      const defaultOrders = await orderRepo.find();
+      const defaultPatients = [
+        { patientId: 'defaultId', name: 'Patient 1', orderId: defaultOrders[0].orderId },
+        { patientId: 'defaultId', name: 'Patient 2' },
+        { patientId: 'defaultId', name: 'Patient 3', orderId: defaultOrders[1].orderId },
+        { patientId: 'defaultId', name: 'Patient 4', orderId: defaultOrders[2].orderId },
+        { patientId: 'defaultId', name: 'Patient 5' },
+      ];
+
+      const createdPatients = [];
+
+      for (const patientData of defaultPatients) {
+        const patient = new PatientModel(patientData);
+
+        try {
+          const createdPatient = await patient.save();
+          createdPatients.push(createdPatient);
+        } catch (error) {
+          throw new Error(`建立預設病患資料失敗: ${error}`);
+        }
+      }
+
+      console.log('預設病患資料已建立', createdPatients);
+    } catch (error) {
+      console.error('初始化預設病患資料失敗', error);
+    }
   }
 }

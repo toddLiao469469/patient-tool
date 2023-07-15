@@ -1,5 +1,4 @@
-import { prop, getModelForClass, modelOptions } from '@typegoose/typegoose';
-
+import { prop, getModelForClass, modelOptions,pre } from '@typegoose/typegoose';
 
 @modelOptions({
   schemaOptions: {
@@ -18,7 +17,10 @@ import { prop, getModelForClass, modelOptions } from '@typegoose/typegoose';
     },
   },
 })
-export class Patient  {
+export class Patient {
+  @prop({ required: true, unique: true, index: true })
+  patientId!: string;
+
   @prop({ required: true })
   name!: string;
 
@@ -26,6 +28,14 @@ export class Patient  {
   orderId?: string;
 }
 
-const PatientModel = getModelForClass(Patient);
+@pre<Patient>('save', function (next) {
+  if (this.isNew) {
+    this.patientId = this._id.toString();
+  }
+  next();
+})
+class PatientClass extends Patient {}
+
+const PatientModel = getModelForClass(PatientClass);
 
 export default PatientModel;

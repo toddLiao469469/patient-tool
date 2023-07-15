@@ -11,10 +11,19 @@ class OrderService {
   private orderModel: typeof OrderModel;
 
   getAllOrders = async (): Promise<Order[]> => {
-    const result = (await this.orderModel.find().exec()).map((r) => r.toObject());
-    console.log(result);
+    const result = await this.orderModel.find().lean()
     return result;
-  };
+    };
+
+
+  getOrder = async (id: string): Promise<Order> => {
+    const result = await this.orderModel.findById(id).lean();
+    if (result) {
+      return result;
+    } else {
+      throw new Error('Order not found');
+    }
+  }
 }
 
 export default OrderService;

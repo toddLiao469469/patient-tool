@@ -1,4 +1,4 @@
-import { prop, getModelForClass, modelOptions } from '@typegoose/typegoose';
+import { prop, getModelForClass, modelOptions,pre } from '@typegoose/typegoose';
 
 @modelOptions({
   schemaOptions: {
@@ -18,10 +18,24 @@ import { prop, getModelForClass, modelOptions } from '@typegoose/typegoose';
   },
 })
 export class Order {
+  @prop({ required: true, unique: true, index: true })
+  orderId!: string;
+  
   @prop({ required: true })
   message!: string;
 }
 
-const OrderModel = getModelForClass(Order);
+
+@pre<Order>('save', function (next) {
+  if (this.isNew) {
+    this.orderId = this._id.toString();
+  }
+  next();
+})
+class OrderClass extends Order {}
+
+const OrderModel = getModelForClass(OrderClass);
+
+
 
 export default OrderModel;
