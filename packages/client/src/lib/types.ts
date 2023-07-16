@@ -1,10 +1,12 @@
 export interface Patient {
-  id: string;
+  patientId: string;
   name: string;
   orderId?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Order {
-  id: string;
+  orderId: string;
   message: string;
 }
