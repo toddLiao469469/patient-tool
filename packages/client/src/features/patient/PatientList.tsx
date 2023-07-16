@@ -24,11 +24,9 @@ const PatientList = () => {
     return <div>error</div>;
   }
   return (
-    <Stack spacing={2}>
+    <Stack spacing={4}>
       {patients &&
-        patients.map(({ name, orderId, id }) => (
-          <PatientCard key={id} name={name} orderId={orderId} id={id} />
-        ))}
+        patients.map((patient) => <PatientCard key={patient.patientId} patient={patient} />)}
     </Stack>
   );
 };
