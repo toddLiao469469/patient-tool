@@ -24,6 +24,7 @@ const orderDialogSlice = createSlice({
 
     closeOrderDialog: (state) => {
       state.open = false;
+      state.patientId = undefined;
     },
   },
 });
