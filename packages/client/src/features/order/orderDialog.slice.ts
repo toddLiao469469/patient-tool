@@ -1,7 +1,6 @@
 // app/userReducer.ts
 
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { Order } from '../../lib/types';
 
 interface OrderDialogState {
   open: boolean;

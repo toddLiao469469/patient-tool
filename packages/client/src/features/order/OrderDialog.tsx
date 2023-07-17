@@ -14,15 +14,69 @@ import {
 
 import { useAppDispatch, useAppSelector } from '../../store';
 
-import { fetchOrderActionCreator } from './order.action';
+import { createOrdersActionCreator, fetchOrderActionCreator } from './order.action';
 import { closeOrderDialog } from './orderDialog.slice';
-import { resetOrder } from './order.slice';
+import { addDraftOrder, resetOrder, updateDraftOrder } from './order.slice';
 
 enum FormMode {
   CREATE = 'create',
   EDIT = 'edit',
   VIEW = 'view',
+  DRAFT = 'draft',
 }
+
+interface HeaderActionsProps {
+  mode: FormMode;
+  onModeChange: (mode: FormMode) => void;
+  onSaveDraftOrder: () => void;
+}
+const HeaderActions: React.FC<HeaderActionsProps> = (props) => {
+  const { mode, onModeChange, onSaveDraftOrder } = props;
+  const order = useAppSelector((state) => state.order);
+  const orderDialog = useAppSelector((state) => state.orderDialog);
+
+  const draftOrder = order.draftOrder.find((item) => item.patientId === orderDialog.patientId);
+
+  const modeTrigger = (firstMode: FormMode) => {
+    if (mode === firstMode) {
+      onModeChange(FormMode.VIEW);
+      return;
+    }
+    onModeChange(firstMode);
+  };
+
+  if (order.data) {
+    return (
+      <div>
+        {mode === FormMode.EDIT && <Button onClick={onSaveDraftOrder}>save draft</Button>}
+        {mode === FormMode.VIEW && (
+          <Button
+            onClick={() => {
+              modeTrigger(FormMode.EDIT);
+            }}
+          >
+            edit{draftOrder && '(draft exists)'}
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {mode === FormMode.CREATE && <Button onClick={onSaveDraftOrder}>save draft</Button>}
+      {mode === FormMode.VIEW && (
+        <Button
+          onClick={() => {
+            modeTrigger(FormMode.CREATE);
+          }}
+        >
+          new{draftOrder && '(draft exists)'}
+        </Button>
+      )}
+    </div>
+  );
+};
 
 interface OrderFromProps {
   mode: FormMode;
@@ -33,19 +87,21 @@ interface OrderFromProps {
 const OrderFrom: React.FC<OrderFromProps> = (props) => {
   const { mode, onMessageChange, message } = props;
   const order = useAppSelector((state) => state.order);
+  const orderDialog = useAppSelector((state) => state.orderDialog);
+  const draftOrder = order.draftOrder.find((item) => item.patientId === orderDialog.patientId);
 
   useEffect(() => {
     switch (mode) {
       case FormMode.CREATE:
-        onMessageChange('');
+        onMessageChange(draftOrder ? draftOrder.message : '');
         break;
       case FormMode.EDIT:
-        onMessageChange(order.data?.message || '');
+        onMessageChange(draftOrder ? draftOrder.message : order.data?.message || '');
         break;
       case FormMode.VIEW:
         break;
     }
-  }, [mode, onMessageChange, order.data?.message]);
+  }, [draftOrder, mode, onMessageChange, order.data?.message]);
 
   if (!message && mode === FormMode.VIEW) {
     return <Alert severity="info">Order Not Found</Alert>;
@@ -72,10 +128,10 @@ const OrderDialog: React.FC = () => {
   const order = useAppSelector((state) => state.order);
   const patient = useAppSelector((state) => state.patient.data);
   const orderDialog = useAppSelector((state) => state.orderDialog);
+
   const [mode, setMode] = useState(FormMode.VIEW);
 
   const [message, setMessage] = useState<string>('');
-
   const handleClose = () => {
     setMode(FormMode.VIEW);
     dispatch(closeOrderDialog());
@@ -85,6 +141,35 @@ const OrderDialog: React.FC = () => {
   const handleOrderMessageChange = useCallback((message: string) => {
     setMessage(message);
   }, []);
+
+  const handleModeChange = useCallback((mode: FormMode) => {
+    setMode(mode);
+  }, []);
+
+  const handleSaveDraftOrder = useCallback(() => {
+    if (!orderDialog.patientId) {
+      return;
+    }
+
+    const draftOrder = order.draftOrder.find((item) => item.patientId === orderDialog.patientId);
+
+    if (!draftOrder) {
+      dispatch(addDraftOrder({ patientId: orderDialog.patientId, message }));
+      return;
+    }
+
+    dispatch(updateDraftOrder({ patientId: orderDialog.patientId, message }));
+  }, [dispatch, message, order.draftOrder, orderDialog.patientId]);
+
+  const handleSaveOrder = useCallback(() => {
+    if (!orderDialog.patientId) {
+      return;
+    }
+
+    if (!order.data) {
+      dispatch(createOrdersActionCreator({ patientId: orderDialog.patientId, message }));
+    }
+  }, [dispatch, message, order.data, orderDialog.patientId]);
 
   useEffect(() => {
     const orderId = patient?.find((p) => p.patientId === orderDialog.patientId)?.orderId;
@@ -102,31 +187,11 @@ const OrderDialog: React.FC = () => {
     <Dialog open={orderDialog.open}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h4"> Order</Typography>
-        {order.data ? (
-          <Button
-            onClick={() => {
-              if (mode === FormMode.EDIT) {
-                setMode(FormMode.VIEW);
-                return;
-              }
-              setMode(FormMode.EDIT);
-            }}
-          >
-            edit
-          </Button>
-        ) : (
-          <Button
-            onClick={() => {
-              if (mode === FormMode.CREATE) {
-                setMode(FormMode.VIEW);
-                return;
-              }
-              setMode(FormMode.CREATE);
-            }}
-          >
-            new
-          </Button>
-        )}
+        <HeaderActions
+          mode={mode}
+          onModeChange={handleModeChange}
+          onSaveDraftOrder={handleSaveDraftOrder}
+        ></HeaderActions>
       </DialogTitle>
       {order.fetching ? (
         <CircularProgress></CircularProgress>
@@ -142,7 +207,7 @@ const OrderDialog: React.FC = () => {
 
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button>Save</Button>
+        <Button onClick={handleSaveOrder}>Save</Button>
       </DialogActions>
     </Dialog>
   );
