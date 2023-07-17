@@ -6,7 +6,7 @@ export enum Path {
 
 type Method = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
-const BaseURL = 'http://localhost:3000';
+const BaseURL = 'http://localhost:3010';
 
 export const httpRequest = async <T>(path: string, method: Method, body?: unknown): Promise<T> => {
   const res = await fetch(`${BaseURL}${path}`, {

@@ -36,8 +36,8 @@ useExpressServer(app, {
   controllers: [PatientController, OrderController],
 });
 
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
+app.listen(3010, () => {
+  console.log('Server is running on port 5010');
 });
 
 async function initializeDefaultData() {
