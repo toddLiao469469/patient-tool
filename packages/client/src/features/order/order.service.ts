@@ -10,10 +10,6 @@ export const getOrder = (id: string): Promise<Order> => {
   return httpRequest(`${Path.Order}/${id}`, 'GET');
 };
 
-export const createOrder = (order: Order): Promise<Order> => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      resolve(order);
-    }, 3000);
-  });
+export const createOrder = (input: { message: string; patientId: string }): Promise<Order> => {
+  return httpRequest(`${Path.Order}`, 'POST', input);
 };
