@@ -14,9 +14,14 @@ import {
 
 import { useAppDispatch, useAppSelector } from '../../store';
 
-import { createOrdersActionCreator, fetchOrderActionCreator } from './order.action';
+import {
+  createOrdersActionCreator,
+  fetchOrderActionCreator,
+  updateOrdersActionCreator,
+} from './order.action';
 import { closeOrderDialog } from './orderDialog.slice';
 import { addDraftOrder, resetOrder, updateDraftOrder } from './order.slice';
+import { openSnackbar } from '../snackbar/snackbar.slice';
 
 enum FormMode {
   CREATE = 'create',
@@ -168,7 +173,11 @@ const OrderDialog: React.FC = () => {
 
     if (!order.data) {
       dispatch(createOrdersActionCreator({ patientId: orderDialog.patientId, message }));
+    } else {
+      dispatch(updateOrdersActionCreator({ orderId: order.data.orderId, message }));
     }
+    dispatch(closeOrderDialog());
+    dispatch(openSnackbar({ message: 'Order saved', severity: 'success', variant: 'filled' }));
   }, [dispatch, message, order.data, orderDialog.patientId]);
 
   useEffect(() => {
@@ -193,17 +202,13 @@ const OrderDialog: React.FC = () => {
           onSaveDraftOrder={handleSaveDraftOrder}
         ></HeaderActions>
       </DialogTitle>
-      {order.fetching ? (
-        <CircularProgress></CircularProgress>
-      ) : (
-        <DialogContent sx={{ width: 480 }}>
-          <OrderFrom
-            mode={mode}
-            message={message}
-            onMessageChange={handleOrderMessageChange}
-          ></OrderFrom>
-        </DialogContent>
-      )}
+      <DialogContent sx={{ width: 480 }}>
+        {order.fetching ? (
+          <CircularProgress />
+        ) : (
+          <OrderFrom mode={mode} message={message} onMessageChange={handleOrderMessageChange} />
+        )}
+      </DialogContent>
 
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>

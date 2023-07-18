@@ -4,7 +4,7 @@ export enum Path {
   Order = '/order',
 }
 
-type Method = 'GET' | 'POST' | 'PUT' | 'DELETE';
+type Method = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 const BaseURL = 'http://localhost:3010';
 

@@ -1,5 +1,3 @@
-// app/userReducer.ts
-
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 interface OrderDialogState {

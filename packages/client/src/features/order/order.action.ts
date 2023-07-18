@@ -18,6 +18,8 @@ export const createOrdersActionCreator = (payload: CreateOrderPayload) => {
   return { type: OrderSagaAction.CREATE_ORDER, payload };
 };
 
-export const updateOrdersActionCreator = () => {
-  return { type: OrderSagaAction.UPDATE_ORDER };
+type UpdateOrderPayload = Order;
+
+export const updateOrdersActionCreator = (payload: UpdateOrderPayload) => {
+  return { type: OrderSagaAction.UPDATE_ORDER, payload };
 };
