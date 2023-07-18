@@ -15,7 +15,6 @@ class OrderController {
 
   @Get('/order/:id')
   getOrder(@Param('id') id: string) {
-    console.log('id', id);
     return this.orderService.getOrder(id);
   }
 

@@ -5,6 +5,7 @@ import { useContainer as routingUseContainer, useExpressServer } from 'routing-c
 import { Container } from 'typedi';
 import PatientController from './controllers/patient.controller';
 import cors from 'cors';
+import { generate as generateUUID } from 'short-uuid';
 
 import PatientModel from './model/patient.model';
 import orderRepo from './model/order.model';
@@ -41,20 +42,19 @@ app.listen(3010, () => {
 });
 
 async function initializeDefaultData() {
-  const firstPatient = await PatientModel.findOne({ name: 'Patient 1' });
-  const order = await orderRepo.findById(firstPatient?.orderId);
 
   try {
     const existingOrders = await orderRepo.find();
+
     if (existingOrders.length > 0) {
       console.log('預設醫囑已存在');
       return;
     }
 
     const defaultOrders = [
-      { orderId: 'defaultId', message: '每日服用一顆藥丸，飯後30分鐘。' },
-      { orderId: 'defaultId', message: '每天晚上休息充足，保持良好的睡眠品質。' },
-      { orderId: 'defaultId', message: '發燒時，每隔4小時服用解熱藥，並多喝水休息。' },
+      { orderId: generateUUID(), message: '每日服用一顆藥丸，飯後30分鐘。' },
+      { orderId: generateUUID(), message: '每天晚上休息充足，保持良好的睡眠品質。' },
+      { orderId: generateUUID(), message: '發燒時，每隔4小時服用解熱藥，並多喝水休息。' },
     ];
     const createdOrders = [];
     for (const orderData of defaultOrders) {
@@ -80,11 +80,11 @@ async function initializeDefaultData() {
       }
       const defaultOrders = await orderRepo.find();
       const defaultPatients = [
-        { patientId: 'defaultId', name: 'Patient 1', orderId: defaultOrders[0].orderId },
-        { patientId: 'defaultId', name: 'Patient 2' },
-        { patientId: 'defaultId', name: 'Patient 3', orderId: defaultOrders[1].orderId },
-        { patientId: 'defaultId', name: 'Patient 4', orderId: defaultOrders[2].orderId },
-        { patientId: 'defaultId', name: 'Patient 5' },
+        { patientId: generateUUID(), name: 'Patient 1', orderId: defaultOrders[0].orderId },
+        { patientId: generateUUID(), name: 'Patient 2' },
+        { patientId: generateUUID(), name: 'Patient 3', orderId: defaultOrders[1].orderId },
+        { patientId: generateUUID(), name: 'Patient 4', orderId: defaultOrders[2].orderId },
+        { patientId: generateUUID(), name: 'Patient 5' },
       ];
 
       const createdPatients = [];

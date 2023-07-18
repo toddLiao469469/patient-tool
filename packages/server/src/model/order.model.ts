@@ -26,15 +26,8 @@ export class Order {
 }
 
 
-@pre<Order>('save', function (next) {
-  if (this.isNew) {
-    this.orderId = this._id.toString();
-  }
-  next();
-})
-class OrderClass extends Order {}
 
-const OrderModel = getModelForClass(OrderClass);
+const OrderModel = getModelForClass(Order);
 
 
 
