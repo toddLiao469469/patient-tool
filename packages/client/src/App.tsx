@@ -2,6 +2,7 @@ import { Container, styled } from '@mui/material';
 
 import PatientList from './features/patient/PatientList';
 import OrderDialog from './features/order/OrderDialog';
+import Snackbar from './features/snackbar/Snackbar';
 
 const PageBase = styled('div')(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
@@ -22,7 +23,7 @@ function App() {
         }}
       >
         <OrderDialog />
-
+        <Snackbar />
         <PatientList />
       </Container>
     </PageBase>
