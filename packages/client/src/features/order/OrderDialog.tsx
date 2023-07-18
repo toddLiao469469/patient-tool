@@ -131,8 +131,10 @@ const OrderFrom: React.FC<OrderFromProps> = (props) => {
 const OrderDialog: React.FC = () => {
   const dispatch = useAppDispatch();
   const order = useAppSelector((state) => state.order);
-  const patient = useAppSelector((state) => state.patient.data);
+  const patients = useAppSelector((state) => state.patient.data);
   const orderDialog = useAppSelector((state) => state.orderDialog);
+
+  const patient = patients?.find((p) => p.patientId === orderDialog.patientId);
 
   const [mode, setMode] = useState(FormMode.VIEW);
 
@@ -152,36 +154,43 @@ const OrderDialog: React.FC = () => {
   }, []);
 
   const handleSaveDraftOrder = useCallback(() => {
-    if (!orderDialog.patientId) {
+    if (!patient) {
       return;
     }
 
-    const draftOrder = order.draftOrder.find((item) => item.patientId === orderDialog.patientId);
+    const draftOrder = order.draftOrder.find((item) => item.patientId === patient.patientId);
 
     if (!draftOrder) {
-      dispatch(addDraftOrder({ patientId: orderDialog.patientId, message }));
+      dispatch(addDraftOrder({ patientId: patient.patientId, message }));
       return;
     }
 
-    dispatch(updateDraftOrder({ patientId: orderDialog.patientId, message }));
-  }, [dispatch, message, order.draftOrder, orderDialog.patientId]);
+    dispatch(updateDraftOrder({ patientId: patient.patientId, message }));
+    setMode(FormMode.VIEW);
+  }, [dispatch, message, order.draftOrder, patient]);
 
   const handleSaveOrder = useCallback(() => {
-    if (!orderDialog.patientId) {
+    if (!patient) {
       return;
     }
 
     if (!order.data) {
-      dispatch(createOrdersActionCreator({ patientId: orderDialog.patientId, message }));
+      dispatch(createOrdersActionCreator({ patientId: patient.patientId, message }));
     } else {
       dispatch(updateOrdersActionCreator({ orderId: order.data.orderId, message }));
     }
     dispatch(closeOrderDialog());
-    dispatch(openSnackbar({ message: 'Order saved', severity: 'success', variant: 'filled' }));
-  }, [dispatch, message, order.data, orderDialog.patientId]);
+    dispatch(
+      openSnackbar({
+        message: `${patient.name} Order saved`,
+        severity: 'success',
+        variant: 'filled',
+      }),
+    );
+  }, [dispatch, message, order.data, patient]);
 
   useEffect(() => {
-    const orderId = patient?.find((p) => p.patientId === orderDialog.patientId)?.orderId;
+    const orderId = patient?.orderId;
 
     if (orderId) {
       dispatch(fetchOrderActionCreator(orderId || ''));
@@ -190,12 +199,12 @@ const OrderDialog: React.FC = () => {
     }
 
     setMessage('');
-  }, [dispatch, order.data?.message, orderDialog.patientId, patient]);
+  }, [dispatch, order.data?.message, patient?.orderId, patients]);
 
   return (
     <Dialog open={orderDialog.open}>
       <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h4"> Order</Typography>
+        <Typography variant="h4">{patient?.name} Order </Typography>
         <HeaderActions
           mode={mode}
           onModeChange={handleModeChange}
